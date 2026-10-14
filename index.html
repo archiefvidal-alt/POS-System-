@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChurGraham POS</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-logo">CG</div>
+        <div><strong>ChurGraham</strong><small>POS System</small></div>
+      </div>
+      <nav>
+        <button class="nav-btn active" data-page="dashboard">📊 <span>Dashboard</span></button>
+        <button class="nav-btn" data-page="pos">🛒 <span>POS / New Sale</span></button>
+        <button class="nav-btn" data-page="products">🍩 <span>Products</span></button>
+        <button class="nav-btn" data-page="inventory">📦 <span>Inventory</span></button>
+        <button class="nav-btn" data-page="sales">🧾 <span>Sales</span></button>
+        <button class="nav-btn" data-page="reports">📈 <span>Reports</span></button>
+        <button class="nav-btn" data-page="income">💰 <span>Income Statement</span></button>
+        <button class="nav-btn" data-page="settings">⚙️ <span>Settings</span></button>
+      </nav>
+      <div class="sidebar-footer">Offline • Local Storage</div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button id="menuBtn" class="icon-btn">☰</button>
+        <div>
+          <h1 id="pageTitle">Dashboard</h1>
+          <p id="currentDate"></p>
+        </div>
+        <button class="primary-btn" id="headerSaleBtn">+ New Sale</button>
+      </header>
+
+      <section class="content">
+        <!-- DASHBOARD -->
+        <div class="page active" id="page-dashboard">
+          <div class="welcome">
+            <div>
+              <h2>Welcome to ChurGraham! 👋</h2>
+              <p>Manage your churros and graham bar sales in one place.</p>
+            </div>
+            <button class="primary-btn" data-go="pos">Start Selling</button>
+          </div>
+          <div class="stats-grid">
+            <div class="stat-card"><span>Today's Sales</span><strong id="dashSales">₱0.00</strong><small>Revenue today</small></div>
+            <div class="stat-card"><span>Orders</span><strong id="dashOrders">0</strong><small>Completed today</small></div>
+            <div class="stat-card"><span>Items Sold</span><strong id="dashItems">0</strong><small>Units today</small></div>
+            <div class="stat-card"><span>Gross Profit (All Sales)</span><strong id="dashProfit">₱0.00</strong><small>All sales minus total product cost</small></div>
+          </div>
+          <div class="two-col">
+            <div class="card">
+              <div class="card-head"><h3>Today's Sales</h3><button class="text-btn" data-go="sales">View All</button></div>
+              <div id="recentSales"></div>
+            </div>
+            <div class="card">
+              <div class="card-head"><h3>Inventory Alerts</h3><button class="text-btn" data-go="inventory">Manage</button></div>
+              <div id="inventoryAlerts"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- POS -->
+        <div class="page" id="page-pos">
+          <div class="pos-layout">
+            <div class="card products-panel">
+              <div class="section-head">
+                <div>
+                  <h2>Products</h2><p>Tap a product to add it to the order.</p>
+                </div>
+                <input class="search" id="productSearch" placeholder="Search product...">
+              </div>
+              <div class="category-tabs" id="categoryTabs">
+                <button class="category active" data-category="All">All</button>
+                <button class="category" data-category="Churros">Churros</button>
+                <button class="category" data-category="Graham Bar">Graham Bar</button>
+              </div>
+              <div class="product-grid" id="posProducts"></div>
+            </div>
+
+            <div class="card cart-panel">
+              <div class="section-head"><div><h2>Current Order</h2><p id="orderNumberLabel">Order #1</p></div><button class="danger-outline" id="clearCart">Clear</button></div>
+              <div id="cartItems" class="cart-items"></div>
+              <div class="checkout-box">
+                <div class="line"><span>Subtotal</span><strong id="cartSubtotal">₱0.00</strong></div>
+                <label>Discount (₱)
+                  <input type="number" id="discountInput" min="0" step="0.01" value="0">
+                </label>
+                <div class="line total"><span>Total</span><strong id="cartTotal">₱0.00</strong></div>
+                <label>Cash Received (₱)
+                  <input type="number" id="cashInput" min="0" step="0.01" placeholder="0.00">
+                </label>
+                <div class="line change"><span>Change</span><strong id="changeAmount">₱0.00</strong></div>
+                <select id="paymentMethod">
+                  <option>Cash</option>
+                  <option>GCash</option>
+                  <option>Other</option>
+                </select>
+                <button class="primary-btn full" id="completeSale">Complete Sale</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PRODUCTS -->
+        <div class="page" id="page-products">
+          <div class="section-head page-head">
+            <div><h2>Product Management</h2><p>Add, edit, or remove products.</p></div>
+            <button class="primary-btn" id="addProductBtn">+ Add Product</button>
+          </div>
+          <div class="card table-card">
+            <div class="table-wrap"><table><thead><tr><th>Product</th><th>Category</th><th>Selling Price</th><th>Cost / Item</th><th>Stock</th><th>Actions</th></tr></thead><tbody id="productsTable"></tbody></table></div>
+          </div>
+        </div>
+
+        <!-- INVENTORY -->
+        <div class="page" id="page-inventory">
+          <div class="stats-grid mini">
+            <div class="stat-card"><span>Total Products</span><strong id="invProducts">0</strong></div>
+            <div class="stat-card"><span>Total Stock</span><strong id="invStock">0</strong></div>
+            <div class="stat-card"><span>Low Stock</span><strong id="invLow">0</strong></div>
+            <div class="stat-card"><span>Out of Stock</span><strong id="invOut">0</strong></div>
+          </div>
+          <div class="card table-card"><div class="table-wrap"><table><thead><tr><th>Product</th><th>Category</th><th>Selling Price</th><th>Stock</th><th>Status</th><th>Update</th></tr></thead><tbody id="inventoryTable"></tbody></table></div></div>
+        </div>
+
+        <!-- SALES -->
+        <div class="page" id="page-sales">
+          <div class="section-head page-head">
+            <div><h2>Sales Records</h2><p>Review completed transactions.</p></div>
+            <div class="filters"><input class="search" id="salesSearch" placeholder="Search order/product..."><input type="date" id="salesDate"></div>
+          </div>
+          <div class="card table-card"><div class="table-wrap"><table><thead><tr><th>Order ID</th><th>Date</th><th>Time</th><th>Products</th><th>Total</th><th>Cash</th><th>Change</th><th>Payment</th><th>Actions</th></tr></thead><tbody id="salesTable"></tbody></table></div></div>
+        </div>
+
+        <!-- REPORTS -->
+        <div class="page" id="page-reports">
+          <div class="stats-grid">
+            <div class="stat-card"><span>Daily Sales</span><strong id="reportDaily">₱0.00</strong></div>
+            <div class="stat-card"><span>Weekly Sales</span><strong id="reportWeekly">₱0.00</strong></div>
+            <div class="stat-card"><span>Monthly Sales</span><strong id="reportMonthly">₱0.00</strong></div>
+            <div class="stat-card"><span>Total Revenue</span><strong id="reportRevenue">₱0.00</strong></div>
+          </div>
+          <div class="two-col">
+            <div class="card"><div class="card-head"><h3>Best-Selling Products</h3></div><div id="bestProducts"></div></div>
+            <div class="card"><div class="card-head"><h3>Sales Overview</h3></div><div id="salesChart" class="chart"></div></div>
+          </div>
+        </div>
+
+        <!-- INCOME -->
+        <div class="page" id="page-income">
+          <div class="section-head page-head"><div><h2>Income Statement</h2><p>Simple business profit summary.</p></div><button class="primary-btn" id="addExpenseBtn">+ Add Expense</button></div>
+          <section class="card cost-entry-card" aria-labelledby="costEntryTitle">
+            <div class="cost-entry-heading">
+              <div class="cost-icon" aria-hidden="true">₱</div>
+              <div>
+                <h3 id="costEntryTitle">Cost of Goods Sold (COGS)</h3>
+                <p>Set the production cost for each product in Products. COGS is calculated from the quantities sold.</p>
+              </div>
+            </div>
+            <div class="cost-entry-controls cost-info">
+              <p>To enter or change a cost: open <strong>Products → Add Product / Edit</strong>, then fill in <strong>Cost per Item (₱)</strong>. The Income Statement multiplies each sold quantity by its saved item cost.</p>
+              <small class="cost-saved-note" id="productCostSavedNote">COGS is calculated automatically from recorded sales and each product's cost per item.</small>
+            </div>
+          </section>
+          <div class="stats-grid">
+            <div class="stat-card"><span>Sales Revenue</span><strong id="incomeRevenue">₱0.00</strong></div>
+            <div class="stat-card"><span>Cost of Goods Sold</span><strong id="incomeCOGS">₱0.00</strong></div>
+            <div class="stat-card"><span>Gross Profit</span><strong id="incomeGross">₱0.00</strong></div>
+            <div class="stat-card"><span>Net Income</span><strong id="incomeNet">₱0.00</strong></div>
+          </div>
+          <div class="two-col">
+            <div class="card">
+              <h3>Income Statement</h3>
+              <div class="statement">
+                <div><span>Sales Revenue</span><strong id="stmtRevenue">₱0.00</strong></div>
+                <div><span>Less: Cost of Goods Sold</span><strong id="stmtCOGS">₱0.00</strong></div>
+                <div class="bold"><span>Gross Profit</span><strong id="stmtGross">₱0.00</strong></div>
+                <div><span>Less: Operating Expenses</span><strong id="stmtExpenses">₱0.00</strong></div>
+                <div class="bold total-line"><span>Net Income</span><strong id="stmtNet">₱0.00</strong></div>
+              </div>
+            </div>
+            <div class="card"><div class="card-head"><h3>Operating Expenses</h3></div><div id="expenseList"></div></div>
+          </div>
+        </div>
+
+        <!-- SETTINGS -->
+        <div class="page" id="page-settings">
+          <div class="card settings-card">
+            <h2>Settings & Backup</h2>
+            <p>Your data is saved in this browser using localStorage.</p>
+            <div class="setting-actions">
+              <button class="secondary-btn" id="exportData">Export Backup</button>
+              <label class="secondary-btn file-label">Import Backup<input type="file" id="importData" accept=".json" hidden></label>
+              <button class="danger-btn" id="resetData">Reset All Data</button>
+            </div>
+            <div class="notice">⚠️ Clearing browser data can remove your POS records. Export a backup regularly.</div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Product Modal -->
+  <div class="modal" id="productModal">
+    <div class="modal-box">
+      <div class="modal-head"><h3 id="productModalTitle">Add Product</h3><button class="close" data-close="productModal">×</button></div>
+      <form id="productForm">
+        <input type="hidden" id="productId">
+        <label>Product Name<input id="productName" required maxlength="60"></label>
+        <label>Category<select id="productCategory"><option>Churros</option><option>Graham Bar</option></select></label>
+        <label>Selling Price (₱)<input id="productPrice" type="number" min="0" step="0.01" required></label>
+        <label>Cost per Item (₱)<input id="productCost" type="number" min="0" step="0.01" required placeholder="e.g. 15.00"></label>
+        <label>Stock<input id="productStock" type="number" min="0" step="1" required></label>
+        <label>Product Image (optional)<input id="productImage" type="file" accept="image/*"></label>
+        <div class="image-preview" id="imagePreview"></div>
+        <button class="primary-btn full" type="submit">Save Product</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Receipt Modal -->
+  <div class="modal" id="receiptModal">
+    <div class="modal-box receipt-box">
+      <div class="modal-head"><h3>Receipt</h3><button class="close" data-close="receiptModal">×</button></div>
+      <div id="receiptContent"></div>
+      <div class="modal-actions"><button class="secondary-btn" id="printReceipt">🖨 Print Receipt</button><button class="primary-btn" id="newSaleBtn">New Sale</button></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <script src="script.js"></script>
+</body>
+</html>
